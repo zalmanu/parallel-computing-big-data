@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
+#include <string.h>
 
 #define IMG_SIZE 54
 
@@ -25,12 +26,12 @@ typedef struct {
 } img_header;
 #pragma pop
 
-unsigned char* read_image(char file_name[], img_header* header) {
+unsigned char* read_image(char* path, img_header* header) {
     FILE* fin;
     unsigned char* data;
 
-    if(!(fin = fopen(file_name, "rb"))) {
-        printf("Cannot open %s", file_name);
+    if(!(fin = fopen(path, "rb"))) {
+        printf("Cannot open %s", path);
         exit(1);
     }
 
@@ -130,10 +131,15 @@ void build_result(img_header* header, unsigned char* red, unsigned char* green, 
     }
 }
 
-void write_image(img_header* header, unsigned char* data) {
+void write_image(img_header* header, unsigned char* data, char* file_name) {
     FILE* fout;
+    char path[50];
 
-    fout = fopen("result.bmp", "wb");
+    snprintf(path, sizeof(path), "./results/%s", file_name);
+    fout = fopen(path, "wb");
+
+    printf("Writing result to: %s\n", path);
+
     fwrite(header, IMG_SIZE, 1, fout);
     fseek(fout, header->data, SEEK_SET);
     fwrite(data, header->img_size, 1, fout);
@@ -142,12 +148,15 @@ void write_image(img_header* header, unsigned char* data) {
 }
 
 int main(int argc, char* argv[]){
-
-    char* file_name = argv[1];
+    char* file_path = argv[1];
+    char* file_name = (char*)(strrchr(file_path, '/') + 1);
     int radius = atoi(argv[2]);
 
     img_header* header = (img_header*) malloc(IMG_SIZE);
-    unsigned char* img_data = read_image(file_name, header);
+    unsigned char* img_data = read_image(file_path, header);
+
+    printf("Height: %d\n", header->height);
+    printf("Width: %d\n", header->width);
 
     unsigned char* red = (unsigned char*) malloc(header->width * header->height);
     unsigned char* green = (unsigned char*) malloc(header->width * header->height);
@@ -156,7 +165,7 @@ int main(int argc, char* argv[]){
     extract_rgb(header, img_data, red, green, blue);
     blur(header, img_data, red, green, blue, radius);
     build_result(header, red, green, blue, img_data);
-    write_image(header, img_data);
+    write_image(header, img_data, file_name);
 
     free(red);
     free(green);
