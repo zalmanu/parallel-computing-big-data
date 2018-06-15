@@ -78,6 +78,7 @@ int apply_bound(int value, int min, int max) {
     return value;
 }
 
+
 void blur(img_header* header, unsigned char* data, unsigned char* red, unsigned char* green, unsigned char* blue, int radius) {
     int pos;
     double sigma = radius * radius;
@@ -86,7 +87,10 @@ void blur(img_header* header, unsigned char* data, unsigned char* red, unsigned 
     for(int row = 0; row < header->height; row++) {
         for(int col = 0; col < header->width; col++) {
 
-            red_total = green_total = blue_total = weight_total = 0;
+            red_total = 0;
+            green_total = 0;
+            blue_total = 0;
+            weight_total = 0;
 
             for(int kernel_row = row-radius; kernel_row <= row + radius; kernel_row++) {
                 for(int kernel_col = col-radius; kernel_col <= col + radius; kernel_col++) {
@@ -118,7 +122,7 @@ void build_result(img_header* header, unsigned char* red, unsigned char* green, 
     int total_width = get_padded_width(header);
 
     for(int row = 0; row < header->height; row++) {
-        for(int col = 0; col < header->width; col+=3, pos++) {
+        for(int col = 0; col < header->width*3; col += 3, pos++) {
             out_data[row * total_width + col] = red[pos];
             out_data[row * total_width + col + 1] = green[pos];
             out_data[row * total_width + col + 2] = blue[pos];
