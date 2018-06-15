@@ -3,6 +3,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #define IMG_SIZE 54
 
@@ -135,10 +136,8 @@ void write_image(img_header* header, unsigned char* data, char* file_name) {
     FILE* fout;
     char path[50];
 
-    snprintf(path, sizeof(path), "./results/%s", file_name);
+    snprintf(path, sizeof(path), "./output/standard/%s", file_name);
     fout = fopen(path, "wb");
-
-    printf("Writing result to: %s\n", path);
 
     fwrite(header, IMG_SIZE, 1, fout);
     fseek(fout, header->data, SEEK_SET);
@@ -154,9 +153,6 @@ int main(int argc, char* argv[]){
 
     img_header* header = (img_header*) malloc(IMG_SIZE);
     unsigned char* img_data = read_image(file_path, header);
-
-    printf("Height: %d\n", header->height);
-    printf("Width: %d\n", header->width);
 
     unsigned char* red = (unsigned char*) malloc(header->width * header->height);
     unsigned char* green = (unsigned char*) malloc(header->width * header->height);
